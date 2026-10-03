@@ -1,0 +1,38 @@
+.project-modal.electric-project-modal {
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--paper);
+}
+
+.electric-border {
+  position: relative;
+  padding: 12px;
+  isolation: isolate;
+}
+
+.electric-border-canvas {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.electric-border-content {
+  position: relative;
+  z-index: 0;
+  max-height: calc(100dvh - 56px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 22px;
+  background: var(--surface);
+  padding: clamp(20px, 4vw, 40px);
+  box-shadow: 0 30px 110px rgb(0 0 0 / 60%);
+}

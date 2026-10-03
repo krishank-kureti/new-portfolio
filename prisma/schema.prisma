@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+model User {
+  id        String    @id @default(uuid())
+  githubId  String    @unique
+  login     String    @unique
+  email     String?
+  avatarUrl String?
+  createdAt DateTime  @default(now())
+  sessions  Session[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([expiresAt])
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  repository  String
+  ref         String        @default("HEAD")
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  files       ProjectFile[]
+  chunks      Chunk[]
+}
+
+model ProjectFile {
+  id        String   @id @default(uuid())
+  projectId String
+  path      String
+  sha       String
+  content   String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  chunks    Chunk[]
+  @@unique([projectId, path])
+}
+
+model Chunk {
+  id        String                @id @default(uuid())
+  projectId String
+  fileId    String
+  content   String
+  ordinal   Int
+  embedding Unsupported("vector(1536)")
+  createdAt DateTime              @default(now())
+  project   Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  file      ProjectFile           @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  @@index([projectId])
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+  @@index([createdAt])
+}

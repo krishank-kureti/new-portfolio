@@ -1,0 +1,87 @@
+/* The page blur sits over content, but under the sticky navigation, dock, and dialogs. */
+.gradual-blur { overflow: hidden; pointer-events: none; }
+.gradual-blur > .gradual-blur-layer {
+  position: absolute;
+  inset: 0;
+  background: none;
+  pointer-events: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .gradual-blur-page.gradual-blur-bottom {
+    background: linear-gradient(to bottom, transparent, rgb(11 10 15 / 75%));
+  }
+}
+
+/* The inline mobile stylesheet only sets .nav; these rules retain sticky behavior. */
+.dark-site > .nav.shell {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  isolation: isolate;
+  background: rgb(11 10 15 / 94%);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.dark-site > .nav.nav-scrolled::before { content: none; }
+.dark-site > .nav .signature-wordmark,
+.dark-site > .nav .nav-menu-button { position: relative; z-index: 1; }
+.dark-site > .nav .nav-menu-button { color: var(--paper); background: var(--surface-raised); border-color: rgb(242 241 236 / 35%); }
+.dark-site > .mobile-nav-overlay {
+  top: 90px;
+  z-index: 79;
+  background: #13131a;
+  color: var(--paper);
+  border-color: rgb(242 241 236 / 28%);
+}
+.dark-site > .mobile-nav-overlay .mobile-nav-inner a { color: var(--paper); }
+.dark-site > .mobile-nav-overlay .mobile-nav-inner a:hover,
+.dark-site > .mobile-nav-overlay .mobile-nav-inner a:focus-visible { color: #ffc886; }
+.dark-site > .stack-dock { z-index: 75; }
+
+/* Off-centre origins make the two rotating fine-line fields visibly move. */
+.dark-site .orbit-card-graphic {
+  background: radial-gradient(circle at 50% 50%, rgb(var(--accent-rgb) / 19%), transparent 58%), #101c27;
+}
+.dark-site .orbit-card-graphic::before,
+.dark-site .orbit-card-graphic::after {
+  inset: -32%;
+  border-radius: 0;
+  opacity: .48;
+  background: repeating-radial-gradient(circle at 38% 45%, #777 0 4px, transparent 4px 9px);
+  mask-image: radial-gradient(ellipse, black 0 40%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse, black 0 40%, transparent 72%);
+  animation: orbit-field-clockwise 12s linear infinite;
+}
+.dark-site .orbit-card-graphic::after {
+  opacity: .28;
+  background: repeating-radial-gradient(circle at 63% 55%, #777 0 4px, transparent 4px 9px);
+  animation: orbit-field-counterclockwise 12s linear infinite;
+}
+.dark-site .orbit-card-ring { display: none; }
+.dark-site .orbit-card-graphic strong { position: relative; z-index: 1; }
+@keyframes orbit-field-clockwise { to { transform: rotate(360deg); } }
+@keyframes orbit-field-counterclockwise { to { transform: rotate(-360deg); } }
+
+.dark-site > .chat-widget {
+  position: fixed;
+  z-index: 85;
+  top: calc(50% - 28px);
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  max-height: calc(100dvh - 88px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 760px) {
+  .dark-site > .mobile-nav-overlay { top: 72px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dark-site .orbit-card-graphic::before,
+  .dark-site .orbit-card-graphic::after { animation: none; transform: none; }
+}
