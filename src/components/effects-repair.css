@@ -1,18 +1,3 @@
-/* The page blur sits over content, but under the sticky navigation, dock, and dialogs. */
-.gradual-blur { overflow: hidden; pointer-events: none; }
-.gradual-blur > .gradual-blur-layer {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .gradual-blur-page.gradual-blur-bottom {
-    background: linear-gradient(to bottom, transparent, rgb(11 10 15 / 75%));
-  }
-}
-
 /* The inline mobile stylesheet only sets .nav; these rules retain sticky behavior. */
 .dark-site > .nav.shell {
   position: sticky;

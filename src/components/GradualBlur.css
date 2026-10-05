@@ -1,0 +1,6 @@
+.gradual-blur { overflow: hidden; pointer-events: none; }
+.gradual-blur-inner { position: relative; width: 100%; height: 100%; transition-property: opacity; }
+.gradual-blur-layer { position: absolute; inset: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .gradual-blur-inner { transition: none !important; }
+}

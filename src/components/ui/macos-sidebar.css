@@ -1,0 +1,118 @@
+.macos-menu {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  margin-left: auto;
+  z-index: 1;
+}
+
+.macos-menu__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  max-width: calc(100vw - 40px);
+  padding: 6px;
+  overflow: hidden;
+  border: 1px solid rgb(242 241 236 / 16%);
+  border-radius: 18px;
+  background: #15151c;
+  color: #f2f1ec;
+  box-shadow: 0 18px 54px rgb(0 0 0 / 38%), inset 0 1px rgb(255 255 255 / 7%);
+}
+
+.macos-menu__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  height: 50px;
+}
+
+.macos-menu__toggle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: #23232d;
+  color: inherit;
+  cursor: pointer;
+}
+
+.macos-menu__toggle:hover { background: #30303c; }
+
+.macos-menu__hamburger {
+  display: grid;
+  gap: 4px;
+  width: 22px;
+}
+
+.macos-menu__hamburger-line {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.macos-menu__content[hidden] { display: none; }
+
+.macos-menu__inner {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin-top: 6px;
+  padding: 6px;
+  border: 1px solid rgb(242 241 236 / 7%);
+  border-radius: 13px;
+  background: #1e1e27;
+}
+
+.macos-menu__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 42px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  color: #d5d4da;
+  font: 500 12px/1.4 var(--mono, monospace);
+  letter-spacing: .055em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.macos-menu__link:hover,
+.macos-menu__link:focus-visible,
+.macos-menu__link[aria-current="location"] { color: #fff; }
+
+.macos-menu__link:focus-visible,
+.macos-menu__toggle:focus-visible {
+  outline: 2px solid #f2f1ec;
+  outline-offset: 2px;
+}
+
+.macos-menu__highlight,
+.macos-menu__selection {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(242 241 236 / 12%);
+  border-radius: inherit;
+  background: #393943;
+  pointer-events: none;
+}
+.macos-menu__selection { background: #454550; }
+
+.macos-menu__label,
+.macos-menu__arrow { position: relative; z-index: 1; }
+.macos-menu__arrow { opacity: .6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .macos-menu__panel,
+  .macos-menu__link,
+  .macos-menu__highlight { animation: none !important; transition: none !important; }
+}

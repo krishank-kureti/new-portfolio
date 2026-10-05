@@ -1,8 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Component, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
 import "./hero-identity.css";
+
+const Lanyard = dynamic(() => import("./Lanyard"), { ssr: false });
+
+class LanyardBoundary extends Component<{ children: React.ReactNode; onError: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onError(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
 
 const subtitles = [
   "AI engineer",
@@ -101,7 +111,37 @@ export function HeroName() {
 }
 
 export function HeroPortrait() {
-  return <div className="identity-portrait"><img src="/images/krishank-cutout.png" alt="Portrait of Krishank Kureti" width="500" height="500" fetchPriority="high" /><span className="identity-portrait-sheen" aria-hidden="true" /></div>;
+  const reducedMotion = useReducedMotion();
+  const container = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [entered, setEntered] = useState(false);
+  const [supported, setSupported] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      setSupported(Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl")));
+    } catch { setSupported(false); }
+  }, []);
+  useEffect(() => {
+    const element = container.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(entries => {
+      const inView = entries[0]?.isIntersecting ?? false;
+      setVisible(inView);
+      if (inView) setEntered(true);
+    }, { rootMargin: "100px" });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const enabled = !reducedMotion && supported && !failed && entered;
+  return <div ref={container} className={`identity-portrait${enabled && ready ? " identity-portrait-ready" : ""}`}>
+    <img className="identity-portrait-fallback" src="/images/krishank-portrait.png" alt="Portrait of Krishank Kureti" width="627" height="627" fetchPriority="high" />
+    {enabled && <LanyardBoundary onError={() => setFailed(true)}><Lanyard active={visible} onReady={() => setReady(true)} onFailure={() => setFailed(true)} /></LanyardBoundary>}
+  </div>;
 }
 
 export function Signature({ placement }: { placement: "hero" | "contact" }) {

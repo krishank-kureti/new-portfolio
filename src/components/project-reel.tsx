@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type PointerEvent } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import "./project-reel.css";
 
 export type ReelProject = {
@@ -17,6 +18,80 @@ type ProjectReelProps = {
 };
 
 const nativeQuery = "(max-width: 800px), (max-height: 700px), (prefers-reduced-motion: reduce)";
+const tiltQuery = "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+const rotationFactor = 8;
+
+function ReelCard({ project, index, onFocus, onOpen }: {
+  project: ReelProject;
+  index: number;
+  onFocus: (button: HTMLButtonElement) => void;
+  onOpen: (index: number, button: HTMLButtonElement) => void;
+}) {
+  const tiltEnabled = useRef(false);
+  const xTarget = useMotionValue(0);
+  const yTarget = useMotionValue(0);
+  const rotateX = useSpring(yTarget, { stiffness: 220, damping: 24, mass: 0.5 });
+  const rotateY = useSpring(xTarget, { stiffness: 220, damping: 24, mass: 0.5 });
+
+  useEffect(() => {
+    const media = window.matchMedia(tiltQuery);
+    const update = () => {
+      tiltEnabled.current = media.matches;
+      if (!media.matches) {
+        xTarget.set(0);
+        yTarget.set(0);
+        rotateX.jump(0);
+        rotateY.jump(0);
+      }
+    };
+    media.addEventListener("change", update);
+    update();
+    return () => media.removeEventListener("change", update);
+  }, [xTarget, yTarget, rotateX, rotateY]);
+
+  const resetTilt = () => {
+    xTarget.set(0);
+    yTarget.set(0);
+  };
+
+  const followPointer = (event: PointerEvent<HTMLButtonElement>) => {
+    if (!tiltEnabled.current || event.pointerType === "touch") {
+      resetTilt();
+      return;
+    }
+    const button = event.currentTarget;
+    const track = button.offsetParent;
+    if (!track) return;
+    // The track translates during the horizontal reel, but never tilts. Its
+    // rect plus the button's layout offsets stays stable as the button rotates.
+    const rect = track.getBoundingClientRect();
+    const centerX = rect.left + button.offsetLeft + button.offsetWidth / 2;
+    const centerY = rect.top + button.offsetTop + button.offsetHeight / 2;
+    const x = Math.max(-1, Math.min(1, (event.clientX - centerX) / (button.offsetWidth / 2)));
+    const y = Math.max(-1, Math.min(1, (event.clientY - centerY) / (button.offsetHeight / 2)));
+    xTarget.set(-x * rotationFactor);
+    yTarget.set(y * rotationFactor);
+  };
+
+  return (
+    <motion.button
+      type="button"
+      className={`reel-card reel-card--${["lime", "blue", "pink"].includes(project.colour) ? project.colour : "lime"}`}
+      aria-label={`View ${project.title} project`}
+      style={{ rotateX, rotateY, transformPerspective: 900 }}
+      onPointerMove={followPointer}
+      onPointerLeave={resetTilt}
+      onPointerCancel={resetTilt}
+      onBlur={resetTilt}
+      onFocus={(event) => { resetTilt(); onFocus(event.currentTarget); }}
+      onClick={(event) => onOpen(index, event.currentTarget)}
+    >
+      <span className="reel-card-top"><span>{project.metric}</span><span>OPEN PROJECT ↗</span></span>
+      <span className="reel-visual" aria-hidden="true"><span className="reel-visual-mark">▶</span><span className="reel-visual-caption">VIDEO / PLACEHOLDER</span></span>
+      <span className="reel-card-copy"><small>{project.label}</small><strong>{project.title}</strong><span>{project.blurb}</span></span>
+    </motion.button>
+  );
+}
 
 export default function ProjectReel({ projects, onOpen }: ProjectReelProps) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -129,18 +204,13 @@ export default function ProjectReel({ projects, onOpen }: ProjectReelProps) {
           <div ref={viewportRef} className="reel-viewport" aria-label="Selected projects">
             <div ref={trackRef} className="reel-track">
               {projects.map((project, index) => (
-                <button
-                  type="button"
+                <ReelCard
                   key={`${project.title}-${index}`}
-                  className={`reel-card reel-card--${["lime", "blue", "pink"].includes(project.colour) ? project.colour : "lime"}`}
-                  aria-label={`View ${project.title} project`}
-                  onFocus={(event) => bringIntoView(event.currentTarget)}
-                  onClick={(event) => onOpen(index, event.currentTarget)}
-                >
-                  <span className="reel-card-top"><span>{project.metric}</span><span>OPEN PROJECT ↗</span></span>
-                  <span className="reel-visual" aria-hidden="true"><span className="reel-visual-mark">▶</span><span className="reel-visual-caption">VIDEO / PLACEHOLDER</span></span>
-                  <span className="reel-card-copy"><small>{project.label}</small><strong>{project.title}</strong><span>{project.blurb}</span></span>
-                </button>
+                  project={project}
+                  index={index}
+                  onFocus={bringIntoView}
+                  onOpen={onOpen}
+                />
               ))}
             </div>
           </div>

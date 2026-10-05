@@ -69,13 +69,18 @@
   inset: -22%;
   border-radius: 45%;
   filter: blur(16px);
-  opacity: .48;
+  opacity: 0;
   background:
     radial-gradient(ellipse at 18% 30%, rgb(var(--accent-rgb) / 70%), transparent 34%),
     radial-gradient(ellipse at 80% 24%, rgb(211 104 73 / 50%), transparent 31%),
     radial-gradient(ellipse at 54% 86%, rgb(91 35 51 / 80%), transparent 40%);
   animation: reel-aurora 12s ease-in-out infinite alternate;
+  animation-play-state: paused;
+  transition: opacity .25s ease;
   pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .reel-card:hover::before { opacity: .48; animation-play-state: running; }
 }
 @keyframes reel-aurora {
   0% { transform: translate3d(-5%, 3%, 0) rotate(-3deg) scale(.94); }
